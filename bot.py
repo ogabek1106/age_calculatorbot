@@ -7,11 +7,11 @@ from telegram.ext import (
 )
 
 # 🛡️ Section 2: Config
-BOT_TOKEN = "7753943408:AAETeACmEzACcAoIR8WDN732QcG2tB63EVA"
+BOT_TOKEN = "8189011070:AAFHz_UeZ5udfmAW0X4OW2muqmYR_qMNb60"
 
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
-    birth_date = datetime.strptime(birth_str, "%Y-%m-%d").date()
+    birth_date = datetime.strptime(birth_str, "%d-%m-%Y").date()
     today = date.today()
 
     years = today.year - birth_date.year
@@ -33,7 +33,7 @@ def calculate_age(birth_str):
 
 # 🤖 Section 4: Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 Welcome! Send your birthdate in this format: YYYY-MM-DD")
+    await update.message.reply_text("👋 Welcome! Send your birthdate in this format: DD-MM-YYYY")
 
 async def handle_birthdate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
