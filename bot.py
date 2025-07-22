@@ -11,9 +11,17 @@ BOT_TOKEN = "8189011070:AAFHz_UeZ5udfmAW0X4OW2muqmYR_qMNb60"
 
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
-    birth_date = datetime.strptime(birth_str, "%d-%m-%Y").date()
-    today = date.today()
+    try:
+        # Try DD-MM-YYYY
+        birth_date = datetime.strptime(birth_str, "%d-%m-%Y").date()
+    except ValueError:
+        try:
+            # Try DDMMYYYY
+            birth_date = datetime.strptime(birth_str, "%d%m%Y").date()
+        except ValueError:
+            return None
 
+    today = date.today()
     years = today.year - birth_date.year
     months = today.month - birth_date.month
     days = today.day - birth_date.day
@@ -31,20 +39,22 @@ def calculate_age(birth_str):
     weekday = birth_date.strftime("%A")
     return years, months, days, weekday
 
-# 🤖 Section 4: Handlers
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("👋 Welcome! Send your birthdate in this format: DD-MM-YYYY")
-
+# 🔁 Update handler
 async def handle_birthdate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
-    try:
-        y, m, d, wd = calculate_age(text)
+    result = calculate_age(text)
+
+    if result:
+        y, m, d, wd = result
         await update.message.reply_text(
             f"🎉 You are {y} years, {m} months, and {d} days old!\n"
             f"🗓️ You were born on a {wd}."
         )
-    except:
-        await update.message.reply_text("❌ Invalid format. Use YYYY-MM-DD (e.g., 2000-07-21)")
+    else:
+        await update.message.reply_text(
+            "❌ Invalid format.\nTry: `21-07-2000` or `21072000`",
+            parse_mode="Markdown"
+        )
 
 # 🚀 Section 5: Main App
 def main():
