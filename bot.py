@@ -1,4 +1,5 @@
 # 📦 Section 1: Imports
+import os
 from datetime import datetime, date
 from telegram import Update
 from telegram.ext import (
@@ -7,7 +8,7 @@ from telegram.ext import (
 )
 
 # 🛡️ Section 2: Config
-BOT_TOKEN = "8189011070:AAFHz_UeZ5udfmAW0X4OW2muqmYR_qMNb60"
+BOT_TOKEN = os.getenv("BOT_TOKEN", "7753943408:AAETeACmEzACcAoIR8WDN732QcG2tB63EVA")
 
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
@@ -39,7 +40,14 @@ def calculate_age(birth_str):
     weekday = birth_date.strftime("%A")
     return years, months, days, weekday
 
-# 🔁 Update handler
+# 🤖 Section 4: Handlers
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(
+        "👋 Welcome! Send me your birthdate in one of these formats:\n"
+        "`21-07-2000` or `21072000`",
+        parse_mode="Markdown"
+    )
+
 async def handle_birthdate(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
     result = calculate_age(text)
@@ -56,7 +64,7 @@ async def handle_birthdate(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode="Markdown"
         )
 
-# 🚀 Section 5: Main App
+# 🚀 Section 5: Launch
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
