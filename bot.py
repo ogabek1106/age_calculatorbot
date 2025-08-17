@@ -12,15 +12,15 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "7753943408:AAETeACmEzACcAoIR8WDN732QcG2tB63E
 
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
-    try:
-        # Try DD-MM-YYYY
-        birth_date = datetime.strptime(birth_str, "%d-%m-%Y").date()
-    except ValueError:
+    formats = ["%d-%m-%Y", "%d%m%Y", "%Y-%m-%d", "%Y%m%d"]
+    for fmt in formats:
         try:
-            # Try DDMMYYYY
-            birth_date = datetime.strptime(birth_str, "%d%m%Y").date()
+            birth_date = datetime.strptime(birth_str, fmt).date()
+            break
         except ValueError:
-            return None
+            continue
+    else:
+        return None
 
     today = date.today()
     years = today.year - birth_date.year
@@ -43,32 +43,54 @@ def calculate_age(birth_str):
 # 🤖 Section 4: Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "👋 Welcome! Send me your birthdate in one of these formats:\n"
-        "`21-07-2000` or `21072000`",
+        "👋 Welcome! I can help you with two things:\n"
+        "1️⃣ Calculate your age from your birthdate\n"
+        "2️⃣ Calculate 1.7% and 2% of any number\n\n"
+        "📅 Try sending:\n"
+        "`21-07-2000` or `21072000`\n"
+        "💰 Or a number like: `150000`",
         parse_mode="Markdown"
     )
 
-async def handle_birthdate(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.strip()
-    result = calculate_age(text)
 
+    # First, try calculating age
+    result = calculate_age(text)
     if result:
         y, m, d, wd = result
         await update.message.reply_text(
             f"🎉 You are {y} years, {m} months, and {d} days old!\n"
             f"🗓️ You were born on a {wd}."
         )
-    else:
+        return
+
+    # Then try percentage calculation
+    if text.replace('.', '', 1).isdigit():
+        number = float(text)
+        percent_1_7 = round(number * 0.017, 2)
+        percent_2 = round(number * 0.02, 2)
+
         await update.message.reply_text(
-            "❌ Invalid format.\nTry: `21-07-2000` or `21072000`",
-            parse_mode="Markdown"
+            f"📊 From {number}:\n"
+            f"➕ 1.7% = {percent_1_7}\n"
+            f"➕ 2% = {percent_2}"
         )
+        return
+
+    # If neither, show error
+    await update.message.reply_text(
+        "❌ Invalid input.\n\nTry:\n"
+        "- Birthdate like `21-07-2000` or `21072000`\n"
+        "- Or number like `150000`",
+        parse_mode="Markdown"
+    )
 
 # 🚀 Section 5: Launch
 def main():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_birthdate))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_input))
     app.run_polling()
 
 if __name__ == "__main__":
