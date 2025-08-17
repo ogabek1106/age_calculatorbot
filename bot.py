@@ -70,11 +70,15 @@ async def handle_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
         number = float(text)
         percent_1_7 = round(number * 0.017, 2)
         percent_2 = round(number * 0.02, 2)
+        after_1_7 = round(number - percent_1_7, 2)
+        after_2 = round(number - percent_2, 2)
 
         await update.message.reply_text(
             f"📊 From {number}:\n"
             f"➕ 1.7% = {percent_1_7}\n"
-            f"➕ 2% = {percent_2}"
+            f"➖ {number} - 1.7% = {after_1_7}\n\n"
+            f"➕ 2% = {percent_2}\n"
+            f"➖ {number} - 2% = {after_2}"
         )
         return
 
