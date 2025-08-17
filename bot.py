@@ -13,6 +13,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "7753943408:AAETeACmEzACcAoIR8WDN732QcG2tB63E
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
     formats = ["%d-%m-%Y", "%d%m%Y", "%Y-%m-%d", "%Y%m%d"]
+
+    # 🔹 Try known full formats
     for fmt in formats:
         try:
             birth_date = datetime.strptime(birth_str, fmt).date()
@@ -20,7 +22,18 @@ def calculate_age(birth_str):
         except ValueError:
             continue
     else:
-        return None
+        # 🔹 Handle 6-digit short format like 110602 → 11-06-2002
+        if len(birth_str) == 6 and birth_str.isdigit():
+            day = int(birth_str[:2])
+            month = int(birth_str[2:4])
+            year = int(birth_str[4:6])
+            year += 2000 if year <= 29 else 1900
+            try:
+                birth_date = date(year, month, day)
+            except ValueError:
+                return None
+        else:
+            return None
 
     today = date.today()
     years = today.year - birth_date.year
@@ -47,7 +60,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "1️⃣ Calculate your age from your birthdate\n"
         "2️⃣ Calculate 1.7% and 2% of any number\n\n"
         "📅 Try sending:\n"
-        "`21-07-2000` or `21072000`\n"
+        "`21-07-2000` or `21072000` or `110602`\n"
         "💰 Or a number like: `150000`",
         parse_mode="Markdown"
     )
@@ -85,7 +98,7 @@ async def handle_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # If neither, show error
     await update.message.reply_text(
         "❌ Invalid input.\n\nTry:\n"
-        "- Birthdate like `21-07-2000` or `21072000`\n"
+        "- Birthdate like `21-07-2000`, `21072000`, `110602`\n"
         "- Or number like `150000`",
         parse_mode="Markdown"
     )
