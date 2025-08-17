@@ -12,26 +12,25 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "7753943408:AAETeACmEzACcAoIR8WDN732QcG2tB63E
 
 # 🧠 Section 3: Age Calculator
 def calculate_age(birth_str):
-    formats = ["%d-%m-%Y", "%d%m%Y", "%Y-%m-%d", "%Y%m%d"]
-
-    # 🔹 Try known full formats
-    for fmt in formats:
+    # 🔹 Handle 6-digit short format like 110602 → 11-06-2002
+    if len(birth_str) == 6 and birth_str.isdigit():
+        day = int(birth_str[:2])
+        month = int(birth_str[2:4])
+        year = int(birth_str[4:6])
+        year += 2000 if year <= 49 else 1900  # 00–49 = 2000s, 50–99 = 1900s
         try:
-            birth_date = datetime.strptime(birth_str, fmt).date()
-            break
+            birth_date = date(year, month, day)
         except ValueError:
-            continue
+            return None
     else:
-        # 🔹 Handle 6-digit short format like 110602 → 11-06-2002
-        if len(birth_str) == 6 and birth_str.isdigit():
-            day = int(birth_str[:2])
-            month = int(birth_str[2:4])
-            year = int(birth_str[4:6])
-            year += 2000 if year <= 49 else 1900
+        # 🔹 Try full formats
+        formats = ["%d-%m-%Y", "%d%m%Y", "%Y-%m-%d", "%Y%m%d"]
+        for fmt in formats:
             try:
-                birth_date = date(year, month, day)
+                birth_date = datetime.strptime(birth_str, fmt).date()
+                break
             except ValueError:
-                return None
+                continue
         else:
             return None
 
