@@ -27,7 +27,7 @@ def calculate_age(birth_str):
             day = int(birth_str[:2])
             month = int(birth_str[2:4])
             year = int(birth_str[4:6])
-            year += 2000 if year <= 29 else 1900
+            year += 2000 if year <= 49 else 1900
             try:
                 birth_date = date(year, month, day)
             except ValueError:
